@@ -5,11 +5,11 @@ import sys
 from os import path, remove
 
 filename=sys.argv[1]
-ext=path.splitext(path.basename(filename))[1]
+ext=path.splitext(path.basename(filename))[1].lower()
 var={}
 lists={}
-if (ext!=".z"):
-    print("File should be .z")
+if (ext!=".zr"):
+    print("File should be .zr")
 else:
     formatting(filename)
     parsed = parsing(filename)
