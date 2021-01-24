@@ -169,7 +169,7 @@ def p_while_loop(p):
 def p_continue(p):
     '''continue : CONTINUE
                 | CONTINUE SEMI'''
-    p[0] = ("CONTINUE",)
+    p[0] = ("CONTINUE",None)
 def p_break(p):
     '''break : BREAK
              | BREAK SEMI'''

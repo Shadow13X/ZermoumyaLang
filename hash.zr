@@ -1,8 +1,14 @@
  a=10
 _LGA3(i=0;i<a;i++){
-    _KTB(i,'$')
-    _ILA(i==5){
-        _KTB("WAHYA")
-        _7BS
+    _ILA(i==2){
+        _KML
     }
+    _KTB("WAHYA i=",i," ")
+    _LGA3(j=0;j<i;j++){
+        _ILA(j==5){
+            _KML
+        }
+        _KTB("WAHYA j=",j," ")
+    }
+    _KTB("$")
 }

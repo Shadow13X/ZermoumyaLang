@@ -6,7 +6,10 @@ from os import path, remove
 
 filename=sys.argv[1]
 ext=path.splitext(path.basename(filename))[1].lower()
-var={"brk":0}
+var={
+    "_brk":0,
+    "_continue":0,
+}
 functions={}
 #functions dictionnary structure
 # functions={"functionName" : [(params),(bloc)]}

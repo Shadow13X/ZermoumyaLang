@@ -66,8 +66,9 @@ def interpret(expr,var):
     elif etype == 'MOD':
         return interpret(expr[1],var) % interpret(expr[2],var)
     elif etype == 'BREAK':
-        var["brk"]=1
-        return var["brk"]
+        var["_brk"]=1
+    elif etype == 'CONTINUE':
+        var["_continue"]=1
     elif etype == 'VAR':
         v, dim1= expr[1]
         if not dim1:
@@ -86,11 +87,12 @@ def interpret(expr,var):
             return var[v][-1][dim1val]
     elif etype == 'BLOC':
         for i in expr[1]:
-            if(var["brk"]==1):
-                return var["brk"]
+            if(var["_brk"]==1 or var["_continue"]==1):
+                break
             interpret(i,var)
-        return 0
+        return [var["_brk"],var["_continue"]]
     elif etype == 'FOR':
+        stats=[0,0]
         if(expr[1][1][1]!='var'):
             print("Unexpected variable type in Loop assignment")
             exit(1)
@@ -104,13 +106,17 @@ def interpret(expr,var):
             print("Bloc expected in loop")
             exit(1)
         var[str(expr[1][1][0])]=[expr[1][2][1]]
-        var["brk"]=0
+        var["_brk"]=0
+        var["_continue"]=0
         while(interpret(expr[2],var)):
-            isbroken=interpret(expr[4],var)
-            if isbroken:
-                var["brk"]=0
+            stats=interpret(expr[4],var)
+            if stats[0]:
                 break
             var[str(expr[1][1][0])] = [interpret(expr[3],var)]
+            stats[1]=0
+            var["_continue"]=0
+        var["_brk"]=0
+        stats[0]=0
     elif etype == 'WHILE':
         if(expr[1][0] not in [">","<",">=","<="]):
             print("Unexpected condition type in Loop assignment")
