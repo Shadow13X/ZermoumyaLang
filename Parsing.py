@@ -27,7 +27,6 @@ def p_command(p):
     """command : function_def
                | function_call
                | conditional
-               | ternary_condition
                | expression
                | assignment
                | expression_ass
@@ -134,8 +133,12 @@ def p_stat_bloc(p):
         p[0] = [p[1]]
 ######## DEF/CALL Function
 def p_function_def(p):
-    '''function_def : FUNCTION ID LPAREN param_list RPAREN bloc'''
-    p[0]=("FUNC_DEF",p[2],p[4])
+    '''function_def : FUNCTION ID LPAREN param_list RPAREN bloc
+                    | FUNCTION ID LPAREN RPAREN bloc'''
+    if len(p)>6:
+        p[0]=("FUNC_DEF",p[2],p[4],p[6])
+    else:
+        p[0]=("FUNC_DEF",p[2],None,p[5])
 def p_function_call(p):
     '''function_call : ID LPAREN param_list RPAREN SEMI'''
     p[0]=("FUNC_CALL",p[1],p[3])
@@ -170,7 +173,7 @@ def p_continue(p):
 def p_break(p):
     '''break : BREAK
              | BREAK SEMI'''
-    p[0] = ("BREAK",)
+    p[0] = ("BREAK",None)
 ############ Expression
 def p_binary_operators(p): 
     '''expression : expression SUM term

@@ -1,6 +1,3 @@
-# This file provides the runtime support for running a basic program
-# Assumes the program has been parsed using basparse.py
-
 import sys
 import math
 import random
@@ -19,7 +16,6 @@ import random
 #         '_SQR': lambda z: math.sqrt(interpret(z)),
 #         '_3LH': lambda z: random.random()
 #     }
-
 # Evaluate an expression
 def interpret(expr,var):
     etype = expr[0]
@@ -29,18 +25,11 @@ def interpret(expr,var):
             float(tmp)
             try:
                 if(float(tmp)==int(tmp)):
-                    var[str(expr[1])] = int(tmp)
+                    var[str(expr[1])] = [int(tmp)]
             except ValueError:
-                var[str(expr[1])] = float(tmp)
+                var[str(expr[1])] = [float(tmp)]
         except ValueError:
-            var[str(expr[1])]=tmp
-        # if(tmp.isnumeric()):
-        #     if(float(tmp)==int(tmp)):
-        #         var[str(expr[1])] = int(tmp)     
-        #     else:   
-        #         var[str(expr[1])] = float(tmp)        
-        # else:
-        #     var[str(expr[1])]=tmp
+            var[str(expr[1])]=[tmp]
     elif etype == 'PRINT':
         # ('PRINT', (('', ('STRING', '"i"')),))
         for i in expr[1]:
@@ -54,12 +43,12 @@ def interpret(expr,var):
                 print(interpret(i[1],var),end="")  
     elif etype == 'ASS':
         if expr[1][1]=='var':
-            var[str(expr[1][0])] = interpret(expr[2],var)
+            var[str(expr[1][0])] = [interpret(expr[2],var)]
         if expr[1][1]=='list':
             l=[]
             for i in expr[2][1]:
                 l.append(interpret(i,var))
-            var[str(expr[1][0])]=l
+            var[str(expr[1][0])]=[l]
     elif etype == 'NUMBER':
         return expr[1]
     elif etype == 'STRING':
@@ -76,11 +65,14 @@ def interpret(expr,var):
         return interpret(expr[1],var) // interpret(expr[2],var)
     elif etype == 'MOD':
         return interpret(expr[1],var) % interpret(expr[2],var)
+    elif etype == 'BREAK':
+        var["brk"]=1
+        return var["brk"]
     elif etype == 'VAR':
         v, dim1= expr[1]
         if not dim1:
             if v in var:
-                return var[v]
+                return var[v][-1]
             else:
                 print("UNDEFINED VARIABLE %s" %
                         v)
@@ -88,13 +80,16 @@ def interpret(expr,var):
         # May be a list lookup or a function interpretuation
         else :
             dim1val = interpret(dim1,var)
-            if dim1val < 0 or dim1val > len(var[v]):
+            if dim1val < 0 or dim1val > len(var[v][-1]):
                 print("LIST INDEX OUT OF BOUNDS AT LINE")
                 raise RuntimeError
-            return var[v][dim1val]
+            return var[v][-1][dim1val]
     elif etype == 'BLOC':
         for i in expr[1]:
+            if(var["brk"]==1):
+                return var["brk"]
             interpret(i,var)
+        return 0
     elif etype == 'FOR':
         if(expr[1][1][1]!='var'):
             print("Unexpected variable type in Loop assignment")
@@ -108,10 +103,14 @@ def interpret(expr,var):
         if(expr[4][0]!="BLOC"):
             print("Bloc expected in loop")
             exit(1)
-        var[str(expr[1][1][0])]=expr[1][2][1]
+        var[str(expr[1][1][0])]=[expr[1][2][1]]
+        var["brk"]=0
         while(interpret(expr[2],var)):
-            interpret(expr[4],var)
-            var[str(expr[1][1][0])] = interpret(expr[3],var)
+            isbroken=interpret(expr[4],var)
+            if isbroken:
+                var["brk"]=0
+                break
+            var[str(expr[1][1][0])] = [interpret(expr[3],var)]
     elif etype == 'WHILE':
         if(expr[1][0] not in [">","<",">=","<="]):
             print("Unexpected condition type in Loop assignment")
@@ -126,7 +125,8 @@ def interpret(expr,var):
             if(interpret(cond[1],var)):
                 interpret(cond[2],var)
                 return 1
-        interpret(expr[2],var)
+        if( len(expr)>2):
+            interpret(expr[2],var)
         return 1
     elif etype in (">","<",">=","<=","==","!=","&&","||") :
         lhs = interpret(expr[1],var)

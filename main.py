@@ -6,8 +6,10 @@ from os import path, remove
 
 filename=sys.argv[1]
 ext=path.splitext(path.basename(filename))[1].lower()
-var={}
-lists={}
+var={"brk":0}
+functions={}
+#functions dictionnary structure
+# functions={"functionName" : [(params),(bloc)]}
 if (ext!=".zr"):
     print("File should be .zr")
 else:
