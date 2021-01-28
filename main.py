@@ -26,4 +26,3 @@ else:
     for i in parsed:
         #print(i)
         interpret(i,var,functions)
-    print(var)

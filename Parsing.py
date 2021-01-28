@@ -39,8 +39,22 @@ def p_command(p):
                | continue
                | COMMENT
                | NEWLINE
+               | import
             """
     p[0]=p[1]
+######## Import
+def p_import(p):
+    '''import : IMPORT files
+    '''
+    p[0]=("IMPORT",tuple(p[2]))
+def p_files(p):
+    '''files : files COMMA FILENAME
+             | FILENAME'''
+    if len(p) > 3:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
 ######## Assign
 def p_assignment(p):
     '''assignment : ID ASSIGN expression

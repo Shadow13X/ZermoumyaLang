@@ -14,7 +14,8 @@ reserved = {
     '_KML'      : "CONTINUE",
     '_KHDMA'    : "FUNCTION",
     '_RJ3'      : "RETURN",
-    '_WALOU'    : "NULL"
+    '_WALOU'    : "NULL",
+    '_JIB'      : "IMPORT"
 }
 
 tokens = [
@@ -47,9 +48,10 @@ tokens = [
     'COMMA',
     #'DOT',
     'SEMI',
-
+    #IMPORT
+    'FILENAME',
     # Other
-    'NEWLINE'
+    'NEWLINE',
 ] + list(reserved.values())
 
 # Arithmetic Operators
@@ -107,9 +109,14 @@ def t_BOOLEAN(t):
 def t_ID(t):
     r'[a-z]([_]?[A-Za-z0-9]+)*'
     return t
+
+# Filename
+def t_FILENAME(t):
+    r'[_][a-z][A-Za-z0-9]*'
+    return t
 # Reserved
 def t_RESERVED(t):
-    r'[_][A-Za-z0-9]+'
+    r'[_][A-Z0-9]+'
     if t.value in reserved:
         t.type = reserved[ t.value ]
     return t

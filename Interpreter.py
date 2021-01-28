@@ -1,7 +1,9 @@
 import sys
 import math
 import random
-
+from Formatter import formatting
+from Parser import parsing
+from os import path, remove
 
 # def __init__(self, prog):
 #     prog = prog
@@ -19,7 +21,16 @@ import random
 # Evaluate an expression
 def interpret(expr,var,function):
     etype = expr[0]
-    if etype == 'SCAN':
+    if etype == 'IMPORT':
+        for i in expr[1]:
+            tmp = i[1:]+".zr"
+            if path.exists(tmp):
+                formatting(tmp)
+                parsed = parsing(tmp)
+                remove(path.splitext(path.basename(tmp))[0]+".tmp")
+                for p in parsed:
+                    interpret(p,var,function)
+    elif etype == 'SCAN':
         tmp = input()
         try:
             float(tmp)

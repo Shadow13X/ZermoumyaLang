@@ -1,7 +1,5 @@
-_KHDMA wahya(a,b){
-    _KTB("a=",a)
-    _KTB("b=",b)
+_KHDMA functionTest(a,b){
+    _KTB("a=",a,"$")
+    _KTB("b=",b,"$")
 }
 
-b=4
-wahya(2,b)

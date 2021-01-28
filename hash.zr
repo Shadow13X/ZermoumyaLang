@@ -1,11 +1,7 @@
-i=0
-x=2.3
-_KOLMA(i<10){
-    _ILA(i==2){
-        i*=x
-        _KTB(i,"$")
-        _KML
-    }
-    _KTB(i,"$")
-    i=i+1
-}
+_JIB _function
+
+i=1
+
+functionTest(i,15)
+
+
