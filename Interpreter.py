@@ -73,7 +73,7 @@ def interpret(expr,var,function):
     elif etype == 'NUMBER':
         return expr[1]
     elif etype == 'STRING':
-        return expr[1]
+        return expr[1][1:len(expr[1])-1]
     elif etype == 'SUM':
         return interpret(expr[1],var,function) + interpret(expr[2],var,function)
     elif etype == 'SUB':

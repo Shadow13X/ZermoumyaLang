@@ -186,6 +186,7 @@ def p_param(p):
 def p_return(p):
     '''return : RETURN expression
     '''
+    print(p[2])
     p[0] = ("RETURN",p[2])
 ######## LOOPS
 def p_for_loop(p):

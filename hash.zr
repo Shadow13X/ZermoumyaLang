@@ -1,6 +1,6 @@
 _JIB _function
 
-_KTB("Dkhl nmra : ")
-_9RA(a)
-_KTB(a," est ",parite(a))
-
+a="A"
+b="B"
+c=a+b
+_KTB(c)
