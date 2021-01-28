@@ -30,6 +30,9 @@ def interpret(expr,var,function):
                 remove(path.splitext(path.basename(tmp))[0]+".tmp")
                 for p in parsed:
                     interpret(p,var,function)
+            else:
+                print("Module not found")
+                exit(1)
     elif etype == 'SCAN':
         tmp = input()
         try:
@@ -95,6 +98,12 @@ def interpret(expr,var,function):
         else:
             print("\nUnpredicted use of _KML outside of loop\n")
             exit(1)
+    elif etype == 'RETURN':
+        if(len(var["_isFunction"])>0):
+            var["_return"]=[1,interpret(expr[1],var,function)]
+        else:
+            print("\nUnpredicted use of _RJ3 outside of function \n")
+            exit(1)
     elif etype == 'VAR':
         v, dim1= expr[1]
         if not dim1:
@@ -113,10 +122,10 @@ def interpret(expr,var,function):
             return var[v][-1][dim1val]
     elif etype == 'BLOC':
         for i in expr[1]:
-            if(var["_brk"]==1 or var["_continue"]==1):
+            if(var["_brk"]==1 or var["_continue"]==1 or var["_return"][0]==1):
                 break
             interpret(i,var,function)
-        return [var["_brk"],var["_continue"]]
+        return [var["_brk"],var["_continue"],var["_return"]]
     elif etype == 'FOR':
         var["_isLoop"].append(1)
         stats=[0,0]
@@ -237,6 +246,7 @@ def interpret(expr,var,function):
         function[expr[1]]=[expr[2],expr[3]]
     elif etype == 'FUNC_CALL':
         call_params = expr[2]
+        var["_isFunction"].append(1)
         if expr[1] in function:
             params=function[expr[1]][0]
         else:
@@ -252,9 +262,13 @@ def interpret(expr,var,function):
             else:
                 var[p[0]]=[interpret(expr[2][i],var,function)]
             i+=1
-        interpret(function[expr[1]][1],var,function)
+        ret=interpret(function[expr[1]][1],var,function)
+        ret=ret[2]
         for p in params:
             var[p[0]].pop()
             if len(var[p[0]]) == 0:
                 var.pop(p[0])
-            # Run it
+        if ret[0]:
+            return ret[1]
+        else:
+            return None

@@ -1,7 +1,6 @@
 _JIB _function
 
-i=1
-
-functionTest(i,15)
-
+_KTB("Dkhl nmra : ")
+_9RA(a)
+_KTB(a," est ",parite(a))
 

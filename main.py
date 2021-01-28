@@ -9,7 +9,9 @@ ext=path.splitext(path.basename(filename))[1].lower()
 var={
     "_brk":0,
     "_continue":0,
-    "_isLoop":[]
+    "_return":[0,None],
+    "_isLoop":[],
+    "_isFunction":[],
 }
 functions={}
 function_scope={

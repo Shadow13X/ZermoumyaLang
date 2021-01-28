@@ -25,7 +25,6 @@ def p_statement(p):
 def p_command(p):
     #done: i/o, ass, 
     """command : function_def
-               | function_call
                | conditional
                | expression
                | assignment
@@ -186,7 +185,6 @@ def p_param(p):
     p[0] = (p[1], None)
 def p_return(p):
     '''return : RETURN expression
-              | RETURN expression SEMI
     '''
     p[0] = ("RETURN",p[2])
 ######## LOOPS
@@ -266,6 +264,7 @@ def p_expression(p):
                   | ternary_condition
                   | term
                   | NULL
+                  | function_call
             """
     p[0] = p[1]
 def p_term_factor(p):
