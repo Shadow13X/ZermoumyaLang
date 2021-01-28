@@ -1,14 +1,11 @@
- a=10
-_LGA3(i=0;i<a;i++){
+i=0
+x=2.3
+_KOLMA(i<10){
     _ILA(i==2){
+        i*=x
+        _KTB(i,"$")
         _KML
     }
-    _KTB("WAHYA i=",i," ")
-    _LGA3(j=0;j<i;j++){
-        _ILA(j==5){
-            _KML
-        }
-        _KTB("WAHYA j=",j," ")
-    }
-    _KTB("$")
+    _KTB(i,"$")
+    i=i+1
 }

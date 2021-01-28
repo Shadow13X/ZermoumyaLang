@@ -17,7 +17,7 @@ import random
 #         '_3LH': lambda z: random.random()
 #     }
 # Evaluate an expression
-def interpret(expr,var):
+def interpret(expr,var,function):
     etype = expr[0]
     if etype == 'SCAN':
         tmp = input()
@@ -40,35 +40,50 @@ def interpret(expr,var):
                 print(i[1][1],end="")
             else:
 
-                print(interpret(i[1],var),end="")  
+                print(interpret(i[1],var,function),end="")  
     elif etype == 'ASS':
         if expr[1][1]=='var':
-            var[str(expr[1][0])] = [interpret(expr[2],var)]
+            try:
+                x=float(interpret(expr[2],var,function))
+                if x == int(interpret(expr[2],var,function)):
+                    var[str(expr[1][0])] = [int(interpret(expr[2],var,function))]
+                else:
+                    var[str(expr[1][0])] = [x]
+            except ValueError:
+                var[str(expr[1][0])] = [interpret(expr[2],var,function)]
         if expr[1][1]=='list':
             l=[]
             for i in expr[2][1]:
-                l.append(interpret(i,var))
+                l.append(interpret(i,var,function))
             var[str(expr[1][0])]=[l]
     elif etype == 'NUMBER':
         return expr[1]
     elif etype == 'STRING':
         return expr[1]
     elif etype == 'SUM':
-        return interpret(expr[1],var) + interpret(expr[2],var)
+        return interpret(expr[1],var,function) + interpret(expr[2],var,function)
     elif etype == 'SUB':
-        return interpret(expr[1],var) - interpret(expr[2],var)
+        return interpret(expr[1],var,function) - interpret(expr[2],var,function)
     elif etype == 'MUL':
-        return interpret(expr[1],var) * interpret(expr[2],var)
+        return interpret(expr[1],var,function) * interpret(expr[2],var,function)
     elif etype == 'DIV':
-        return interpret(expr[1],var) / interpret(expr[2],var)
+        return interpret(expr[1],var,function) / interpret(expr[2],var,function)
     elif etype == 'IDIV':
-        return interpret(expr[1],var) // interpret(expr[2],var)
+        return interpret(expr[1],var,function) // interpret(expr[2],var,function)
     elif etype == 'MOD':
-        return interpret(expr[1],var) % interpret(expr[2],var)
+        return interpret(expr[1],var,function) % interpret(expr[2],var,function)
     elif etype == 'BREAK':
-        var["_brk"]=1
+        if(len(var["_isLoop"])>0):
+            var["_brk"]=1
+        else:
+            print("\nUnpredicted use of _7BS outside of loop \n")
+            exit(1)
     elif etype == 'CONTINUE':
-        var["_continue"]=1
+        if(len(var["_isLoop"])>0):
+            var["_continue"]=1
+        else:
+            print("\nUnpredicted use of _KML outside of loop\n")
+            exit(1)
     elif etype == 'VAR':
         v, dim1= expr[1]
         if not dim1:
@@ -77,10 +92,10 @@ def interpret(expr,var):
             else:
                 print("UNDEFINED VARIABLE %s" %
                         v)
-                raise RuntimeError
+                exit(1)
         # May be a list lookup or a function interpretuation
         else :
-            dim1val = interpret(dim1,var)
+            dim1val = interpret(dim1,var,function)
             if dim1val < 0 or dim1val > len(var[v][-1]):
                 print("LIST INDEX OUT OF BOUNDS AT LINE")
                 raise RuntimeError
@@ -89,9 +104,10 @@ def interpret(expr,var):
         for i in expr[1]:
             if(var["_brk"]==1 or var["_continue"]==1):
                 break
-            interpret(i,var)
+            interpret(i,var,function)
         return [var["_brk"],var["_continue"]]
     elif etype == 'FOR':
+        var["_isLoop"].append(1)
         stats=[0,0]
         if(expr[1][1][1]!='var'):
             print("Unexpected variable type in Loop assignment")
@@ -108,35 +124,47 @@ def interpret(expr,var):
         var[str(expr[1][1][0])]=[expr[1][2][1]]
         var["_brk"]=0
         var["_continue"]=0
-        while(interpret(expr[2],var)):
-            stats=interpret(expr[4],var)
+        while(interpret(expr[2],var,function)):
+            stats=interpret(expr[4],var,function)
             if stats[0]:
                 break
-            var[str(expr[1][1][0])] = [interpret(expr[3],var)]
+            var[str(expr[1][1][0])] = [interpret(expr[3],var,function)]
             stats[1]=0
             var["_continue"]=0
         var["_brk"]=0
         stats[0]=0
+        var["_isLoop"].pop()
     elif etype == 'WHILE':
-        if(expr[1][0] not in [">","<",">=","<="]):
+        var["_isLoop"].append(1)
+        stats=[0,0]
+        if(expr[1][0] not in [">","<",">=","<=","==","!="]):
             print("Unexpected condition type in Loop assignment")
             exit(1)
         if(expr[2][0]!="BLOC"):
             print("Bloc expected in loop")
             exit(1)
-        while(interpret(expr[1],var)):
-            interpret(expr[2],var)
+        var["_brk"]=0
+        var["_continue"]=0
+        while(interpret(expr[1],var,function)):
+            stats=interpret(expr[2],var,function)
+            if stats[0]:
+                break
+            stats[1]=0
+            var["_continue"]=0
+        var["_brk"]=0
+        stats[0]=0
+        var["_isLoop"].pop()
     elif etype == 'COND':
         for cond in expr[1]:
-            if(interpret(cond[1],var)):
-                interpret(cond[2],var)
+            if(interpret(cond[1],var,function)):
+                interpret(cond[2],var,function)
                 return 1
         if( len(expr)>2):
-            interpret(expr[2],var)
+            interpret(expr[2],var,function)
         return 1
     elif etype in (">","<",">=","<=","==","!=","&&","||") :
-        lhs = interpret(expr[1],var)
-        rhs = interpret(expr[2],var)
+        lhs = interpret(expr[1],var,function)
+        rhs = interpret(expr[2],var,function)
         if etype == '<':
             if lhs < rhs:
                 return 1
@@ -184,12 +212,38 @@ def interpret(expr,var):
             else:
                 return 0
     elif etype == 'LNOT' :
-        lhs = interpret(expr[1],var)
+        lhs = interpret(expr[1],var,function)
         return not lhs
     elif etype == 'BOOL':
         if expr[1] == '_S7I7':
             return 1
         elif expr[1] == '_GHALET':
             return 0
-
-    # Run it
+    elif etype == 'FUNC_DEF':
+        if expr[1] in function:
+            print("Function ",expr[1]," already defined")
+            exit(1)
+        function[expr[1]]=[expr[2],expr[3]]
+    elif etype == 'FUNC_CALL':
+        call_params = expr[2]
+        if expr[1] in function:
+            params=function[expr[1]][0]
+        else:
+            print("Undefined function '",expr[1],"'")
+            exit(1)
+        if len(call_params)!=len(params):
+            print("Inconvenient parameters while calling '",expr[1],"'")
+            exit(1)
+        i=0
+        for p in params:
+            if p[0] in var:
+                var[p[0]].append(interpret(expr[2][i],var,function))
+            else:
+                var[p[0]]=[interpret(expr[2][i],var,function)]
+            i+=1
+        interpret(function[expr[1]][1],var,function)
+        for p in params:
+            var[p[0]].pop()
+            if len(var[p[0]]) == 0:
+                var.pop(p[0])
+            # Run it

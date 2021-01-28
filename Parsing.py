@@ -140,8 +140,24 @@ def p_function_def(p):
     else:
         p[0]=("FUNC_DEF",p[2],None,p[5])
 def p_function_call(p):
-    '''function_call : ID LPAREN param_list RPAREN SEMI'''
-    p[0]=("FUNC_CALL",p[1],p[3])
+    '''function_call : ID LPAREN param_list_call RPAREN
+                     | ID LPAREN RPAREN '''
+    if len(p)>3:
+        p[0]=("FUNC_CALL",p[1],p[3])
+    else:
+        p[0]=("FUNC_CALL",p[1],None)
+def p_param_list_call(p):
+    '''param_list_call : param_list_call COMMA param_call
+                       | param_call
+            '''
+    if len(p) > 3:
+        p[0] = p[1]
+        p[0].append(p[3])
+    else:
+        p[0] = [p[1]]
+def p_param_call(p):
+    'param_call : factor'
+    p[0] = p[1]
 def p_param_list(p):
     '''param_list : param_list COMMA param
                   | param
@@ -200,6 +216,14 @@ def p_unary_operators(p):
                   | expression INCR
     '''
     if p[2] == '++':
+        p[0] = ("ASS",(p[1][1][0],"var"), ("SUM",p[1],("NUMBER",1)))
+    elif p[2] == '--':
+        p[0] = ("ASS",(p[1][1][0],"var"), ("SUB",p[1],("NUMBER",1)))
+def p_unary_operators(p): 
+    '''expression : expression DECR
+                  | expression INCR
+    '''
+    if p[2] == '++':
         p[0] = ("SUM",p[1],("NUMBER",1))
     elif p[2] == '--':
         p[0] = ("SUB",p[1],("NUMBER",1))
@@ -212,17 +236,17 @@ def p_binary_operators_ass(p):
                       | ID MOD_ASS expression
     '''
     if p[2] == '+=':
-        p[0] = ("ASS",p[1], ("SUM",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ('SUM', ('VAR', (p[1], None)),p[3]))
     elif p[2] == '-=':
-        p[0] = ("ASS",p[1], ("SUB",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ("SUB",('VAR', (p[1], None)),p[3]))
     elif p[2] == '*=':
-        p[0] = ("ASS",p[1], ("MUL",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ("MUL",('VAR', (p[1], None)),p[3]))
     elif p[2] == '/=':
-        p[0] = ("ASS",p[1], ("DIV",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ("DIV",('VAR', (p[1], None)),p[3]))
     elif p[2] == '//=':
-        p[0] = ("ASS",p[1], ("IDIV",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ("IDIV",('VAR', (p[1], None)),p[3]))
     elif p[2] == '%=':
-        p[0] = ("ASS",p[1], ("MOD",p[1],p[3]))
+        p[0] = ("ASS",(p[1], 'var'), ("MOD",('VAR', (p[1], None)),p[3]))
 def p_expression(p):
     """expression : condition
                   | ternary_condition
@@ -240,7 +264,13 @@ def p_factor_num(p):
               | STRING 
               | ID LBRACKET expression RBRACKET
         """
-    if(str(p[1]).isnumeric()):
+    # float(tmp)
+    # try:
+    #     if(float(tmp)==int(tmp)):
+    #         var[str(expr[1])] = [int(tmp)]
+    # except ValueError:
+    #     var[str(expr[1])] = [float(tmp)]
+    if(isinstance(p[1], int) or isinstance(p[1], float)):
         p[0] = ("NUMBER",p[1])
     elif(p[1][0]=="'" or p[1][0]=='"'):
         p[0] = ("STRING",p[1])
