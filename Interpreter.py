@@ -27,7 +27,7 @@ def interpret(expr,var,function):
             if path.exists(tmp):
                 formatting(tmp)
                 parsed = parsing(tmp)
-                remove(path.splitext(path.basename(tmp))[0]+".tmp")
+                # remove(path.splitext(path.basename(tmp))[0]+".tmp")
                 for p in parsed:
                     interpret(p,var,function)
             else:
@@ -156,16 +156,19 @@ def interpret(expr,var,function):
     elif etype == 'WHILE':
         var["_isLoop"].append(1)
         stats=[0,0]
-        if(expr[1][0] not in [">","<",">=","<=","==","!="]):
-            print("Unexpected condition type in Loop assignment")
+        # print(expr[1][0])
+        if(expr[1][0] not in [">","<",">=","<=","==","!=","BOOL"]):
+            print("Unexpected condition type in Loop")
             exit(1)
         if(expr[2][0]!="BLOC"):
             print("Bloc expected in loop")
             exit(1)
         var["_brk"]=0
         var["_continue"]=0
+        # print(interpret(expr[1],var,function))
         while(interpret(expr[1],var,function)):
             stats=interpret(expr[2],var,function)
+            # print(stats)
             if stats[0]:
                 break
             stats[1]=0
@@ -234,6 +237,7 @@ def interpret(expr,var,function):
         lhs = interpret(expr[1],var,function)
         return not lhs
     elif etype == 'BOOL':
+        # print(expr[1])
         if expr[1] == '_S7I7':
             return 1
         elif expr[1] == '_GHALET':
@@ -251,22 +255,24 @@ def interpret(expr,var,function):
         else:
             print("Undefined function '",expr[1],"'")
             exit(1)
-        if len(call_params)!=len(params):
+        if (call_params != params and (not params)):
             print("Inconvenient parameters while calling '",expr[1],"'")
             exit(1)
         i=0
-        for p in params:
-            if p[0] in var:
-                var[p[0]].append(interpret(expr[2][i],var,function))
-            else:
-                var[p[0]]=[interpret(expr[2][i],var,function)]
-            i+=1
+        if params:
+            for p in params:
+                if p[0] in var:
+                    var[p[0]].append(interpret(expr[2][i],var,function))
+                else:
+                    var[p[0]]=[interpret(expr[2][i],var,function)]
+                i+=1
         ret=interpret(function[expr[1]][1],var,function)
         ret=ret[2]
-        for p in params:
-            var[p[0]].pop()
-            if len(var[p[0]]) == 0:
-                var.pop(p[0])
+        if params:
+            for p in params:
+                var[p[0]].pop()
+                if len(var[p[0]]) == 0:
+                    var.pop(p[0])
         if ret[0]:
             return ret[1]
         else:

@@ -1,7 +1,0 @@
-_KHDMA parite(a){
-    _ILA(a%2==0){
-        _RJ3 'pair'
-    }_ILALA{
-        _RJ3 'impair'
-    }
-}
