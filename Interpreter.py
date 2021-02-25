@@ -27,7 +27,7 @@ def interpret(expr,var,function):
             if path.exists(tmp):
                 formatting(tmp)
                 parsed = parsing(tmp)
-                # remove(path.splitext(path.basename(tmp))[0]+".tmp")
+                remove(path.splitext(path.basename(tmp))[0]+".tmp")
                 for p in parsed:
                     interpret(p,var,function)
             else:
