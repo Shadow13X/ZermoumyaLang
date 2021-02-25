@@ -1,7 +1,7 @@
 _JIB _testmodule
 
 _KTB("$$---------- import | function -----------$$")
-_KTB("Ce qui suit est une suite de tests ecrite sous format de fonctions dans 'testmodule.zr' et importee dans 'test.zr'")
+_KTB("The following content is a succesion of Unit tests of 'testmodule.zr' functions imported in  'test.zr'")
 
 _KTB("$$---------- condition -----------$$")
 condition()
