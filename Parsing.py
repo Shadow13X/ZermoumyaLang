@@ -155,7 +155,7 @@ def p_function_def(p):
 def p_function_call(p):
     '''function_call : ID LPAREN param_list_call RPAREN
                      | ID LPAREN RPAREN '''
-    if len(p)>3:
+    if len(p)>4:
         p[0]=("FUNC_CALL",p[1],p[3])
     else:
         p[0]=("FUNC_CALL",p[1],None)
@@ -186,7 +186,7 @@ def p_param(p):
 def p_return(p):
     '''return : RETURN expression
     '''
-    print(p[2])
+    # print(p[2])
     p[0] = ("RETURN",p[2])
 ######## LOOPS
 def p_for_loop(p):

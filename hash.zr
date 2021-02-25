@@ -1,6 +1,4 @@
 _JIB _function
 
-a="A"
-b="B"
-c=a+b
-_KTB(c)
+a=2
+_KTB(parite(a))

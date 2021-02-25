@@ -53,7 +53,6 @@ def interpret(expr,var,function):
             elif (i[1][0]=="NUMBER"):
                 print(i[1][1],end="")
             else:
-
                 print(interpret(i[1],var,function),end="")  
     elif etype == 'ASS':
         if expr[1][1]=='var':
@@ -132,7 +131,7 @@ def interpret(expr,var,function):
         if(expr[1][1][1]!='var'):
             print("Unexpected variable type in Loop assignment")
             exit(1)
-        if(expr[2][0] not in [">","<",">=","<="]):
+        if(expr[2][0] not in [">","<",">=","<=","==","!="]):
             print("Unexpected condition type in Loop assignment")
             exit(1)
         if(expr[3][0] not in ["SUM","SUB","DIV","IDIV","MOD","MUL"]):

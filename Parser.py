@@ -37,4 +37,5 @@ def parsing(filename):
             result = (parser.parse(line))
             line=""
         parsed.append(result)
+    # print(parsed)
     return parsed
